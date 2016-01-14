@@ -7,7 +7,7 @@ interface
 {$ifDef In0k_lazIdeSRC_wndFuckUP_DebugLOG_mode}
     {$define _debugLOG_}
 {$endIf}
-{$define _debugLOG_}
+{.$define _debugLOG_}
 
 
 uses {$ifDef _debugLOG_}SysUtils,{$endIf}
