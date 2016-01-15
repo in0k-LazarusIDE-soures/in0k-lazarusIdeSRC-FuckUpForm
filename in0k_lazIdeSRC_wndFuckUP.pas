@@ -46,7 +46,6 @@ type
   end;
  tIn0k_lazIdeSRC_wndFuckUP_NodeTYPE=class of tIn0k_lazIdeSRC_wndFuckUP_Node;
 
-
  tIn0k_lazIdeSRC_wndFuckUP=class
   {%region --- debug Event LOG ------------------------------------ /fold}
   {$ifDef _debugLOG_}
@@ -61,7 +60,6 @@ type
     property onDebug:TGetStrProc read _onDbgLOG_ write _onDbgLOG_;
   {$endIf}
   {%endregion}
-
   protected
    _nodes_:TList;
   protected
@@ -80,7 +78,6 @@ type
     constructor Create;
     destructor DESTROY; override;
   end;
-
 
 implementation
 
