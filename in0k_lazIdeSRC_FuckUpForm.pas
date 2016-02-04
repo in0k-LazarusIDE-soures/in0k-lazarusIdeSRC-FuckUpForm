@@ -3,7 +3,8 @@ unit in0k_lazIdeSRC_FuckUpForm;
 interface
 
 {$i in0k_lazExt_SETTINGs.inc} //< настройки компанента-Расширения.
-//< Можно смело убирать, работает только в моей системе папок `inok_LazExt_..`.
+//< Можно смело убирать, так как будеть работать только в моей специальной
+//< "системе имен и папок" `in0k_LazExt_..`.
 
 uses {$ifDef in0k_lazIdeSRC_FuckUpForm_DebugLOG_mode}in0k_lazExt_DEBUG,{$endIf}
      Classes, Forms;
@@ -16,41 +17,38 @@ type
    _frm_:TCustomForm;                     //< форма, который мы обрабатываем
    _frm_onDESTROY_original_:TNotifyEvent; //< её старое событие, которое мы ОБЯЗАТЕЛЬНО заменяем
     procedure _frmMyCustom_onDESTROY_(Sender:TObject); //< моя подстава
-    procedure _do_FuckUP_SET_; inline;
-    procedure _do_FuckUP_CLR_; inline;
+    procedure _do_FuckUP_SET_; inline;    //< подменить событие onDESTROY
+    procedure _do_FuckUP_CLR_; inline;    //< восстановить событие onDESTROY
   private
     procedure _FuckUP_SET_(const frm:TCustomForm);
     procedure _FuckUP_CLR_;
   public
-    constructor Create;                 virtual;
-    //constructor Create(const aForm:TCustomForm);
+    constructor Create;  virtual;
     destructor DESTROY; override;
   protected
     property Form:TCustomForm read _frm_ write _FuckUP_SET_;
-  public
-    procedure FuckUP_onSET; virtual;
-    procedure FuckUP_onCLR; virtual;
+  protected
+    procedure FuckUP_onSET; virtual; //< дополнительный "сабЕвентинг"
+    procedure FuckUP_onCLR; virtual; //< очистка "сабЕвентинга"
   end;
  tIn0k_lazIdeSRC_FuckUpFormTYPE=class of tIn0k_lazIdeSRC_FuckUpForm;
 
 
-  // список для хранения контролов с подМененными событиями
+  // список для хранения ФОРМ с подМененными событиями
  tIn0k_lazIdeSRC_FuckUpFrms_LIST=class
   private //< нагиб "нагибателя"
     procedure _fuckUpNode_SET_(const fuckNode:tIn0k_lazIdeSRC_FuckUpForm); inline;
     procedure _fuckUpNode_CLR_(const fuckNode:tIn0k_lazIdeSRC_FuckUpForm); inline;
     procedure _fuckUpNode_onFormDestroy_(Sender:TObject);
-  private
-    //function  _node_CRT_(const Form:TCustomForm; const nodeTYPE:tIn0k_lazIdeSRC_FuckUpFormTYPE):tIn0k_lazIdeSRC_FuckUpForm;
-  protected //< список "нагибателей"
+  protected //< собственно сам список "нагибателей"
    _nodes_:TList;
     function  _nodes__ADD_(const fuckNode:tIn0k_lazIdeSRC_FuckUpForm):boolean;
     function  _nodes__CUT_(const Form:TCustomForm):tIn0k_lazIdeSRC_FuckUpForm;
     function  _nodes__fnd_(const Form:TCustomForm):tIn0k_lazIdeSRC_FuckUpForm;
     procedure _nodes__CLR_;
   protected
-    procedure  Forms_del(const Form:TCustomForm);
-    function   Forms_GET(const Form:TCustomForm; const nodeTYPE:tIn0k_lazIdeSRC_FuckUpFormTYPE):tIn0k_lazIdeSRC_FuckUpForm;
+    procedure  fuckUpForms_del(const Form:TCustomForm);
+    function   fuckUpForms_GET(const Form:TCustomForm; const nodeTYPE:tIn0k_lazIdeSRC_FuckUpFormTYPE):tIn0k_lazIdeSRC_FuckUpForm;
   public
     constructor Create;
     destructor DESTROY; override;
@@ -73,17 +71,10 @@ begin
    _frm_:=nil;
 end;
 
-{constructor tIn0k_lazIdeSRC_FuckUpForm.Create(const aForm:TCustomForm);
-begin
-    Create;
-   _FuckUP_SET_(aForm);
-end;}
-
 destructor tIn0k_lazIdeSRC_FuckUpForm.DESTROY;
 begin
    _FuckUP_CLR_;
 end;
-
 
 //------------------------------------------------------------------------------
 
@@ -96,7 +87,6 @@ begin // агась ... подконтрольная форма уничтожа
     //---
    _frm_:=nil;
 end;
-
 
 //------------------------------------------------------------------------------
 
@@ -138,13 +128,13 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+
 procedure tIn0k_lazIdeSRC_FuckUpForm._FuckUP_SET_(const frm:TCustomForm);
 begin
     if Assigned(_frm_) then _do_FuckUP_CLR_;
    _frm_:=frm;
     if Assigned(_frm_) then _do_FuckUP_SET_;
 end;
-
 
 procedure tIn0k_lazIdeSRC_FuckUpForm._FuckUP_CLR_;
 begin
@@ -182,20 +172,6 @@ begin
    _nodes__CLR_;
    _nodes_.FREE;
 end;
-
-//------------------------------------------------------------------------------
-
-{function tIn0k_lazIdeSRC_FuckUpFrms_LIST._node_CRT_(const Form:TCustomForm; const nodeTYPE:tIn0k_lazIdeSRC_FuckUpFormTYPE):tIn0k_lazIdeSRC_FuckUpForm;
-begin
-    result:=nodeTYPE.Create(Form);
-end;}
-
-{procedure tIn0k_lazIdeSRC_FuckUpFrms_LIST._node_DST_(const node:tIn0k_lazIdeSRC_FuckUpForm);
-begin
-   _fuckUpNode_CLR_(node);
-    node._FuckUP_CLR_;
-    node.FREE;
-end;}
 
 //------------------------------------------------------------------------------
 
@@ -274,7 +250,7 @@ begin
     end;
 end;
 
-// полностью очистить список (перед уничтожением чистка)
+// полностью очистить список (перед уничтожением, чистка)
 procedure tIn0k_lazIdeSRC_FuckUpFrms_LIST._nodes__CLR_;
 var i:integer;
   tmp:tIn0k_lazIdeSRC_FuckUpForm;
@@ -292,15 +268,16 @@ end;
 
 //------------------------------------------------------------------------------
 
-
-procedure tIn0k_lazIdeSRC_FuckUpFrms_LIST.Forms_del(const Form:TCustomForm);
+// "РАЗОГНУТЬ" форму и изъять из списка
+procedure tIn0k_lazIdeSRC_FuckUpFrms_LIST.fuckUpForms_del(const Form:TCustomForm);
 var tmp:tIn0k_lazIdeSRC_FuckUpForm;
 begin
     tmp:=_nodes__CUT_(TCustomForm(Form));
     if Assigned(tmp) then tmp.FREE;
 end;
 
-function tIn0k_lazIdeSRC_FuckUpFrms_LIST.Forms_GET(const Form:TCustomForm; const nodeTYPE:tIn0k_lazIdeSRC_FuckUpFormTYPE):tIn0k_lazIdeSRC_FuckUpForm;
+// Получить "НАГНуТУЮ" форму (найти среди УЖЕ, или "нагнуть" и добавить)
+function tIn0k_lazIdeSRC_FuckUpFrms_LIST.fuckUpForms_GET(const Form:TCustomForm; const nodeTYPE:tIn0k_lazIdeSRC_FuckUpFormTYPE):tIn0k_lazIdeSRC_FuckUpForm;
 begin
     result:=_nodes__fnd_(Form);
     if not Assigned(result) then begin
