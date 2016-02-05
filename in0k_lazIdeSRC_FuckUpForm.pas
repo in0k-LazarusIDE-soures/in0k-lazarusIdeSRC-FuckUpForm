@@ -1,5 +1,7 @@
 unit in0k_lazIdeSRC_FuckUpForm;
 
+{todo: описание и документация}
+
 interface
 
 {$i in0k_lazExt_SETTINGs.inc} //< настройки компанента-Расширения.
@@ -27,7 +29,7 @@ type
     destructor DESTROY; override;
   protected
     property Form:TCustomForm read _frm_ write _FuckUP_SET_;
-  protected
+  protected //< пользоваьельский
     procedure FuckUP_onSET; virtual; //< дополнительный "сабЕвентинг"
     procedure FuckUP_onCLR; virtual; //< очистка "сабЕвентинга"
   end;
@@ -57,8 +59,10 @@ type
 implementation
 
 {%region --- возня с ДЕБАГОМ -------------------------------------- /fold}
-{$if declared(in0k_lazIdeSRC_FuckUpForm_DebugLOG_mode) AND declared(in0k_lazIde_DEBUG)}
-    {$define _debugLOG_}
+{$if defined(in0k_lazIdeSRC_FuckUpForm_DebugLOG_mode) AND declared(in0k_lazIde_DEBUG)}
+    // `in0k_lazIde_DEBUG` - это функция ИНДИКАТОР что используется
+    //                       моя "система имен и папок"
+    {$define _debugLOG_}     //< типа да ... можно делать ДЕБАГ отметки
 {$else}
     {$undef _debugLOG_}
 {$endIf}
@@ -92,39 +96,31 @@ end;
 
 procedure tIn0k_lazIdeSRC_FuckUpForm._do_FuckUP_SET_;
 begin
-    {$ifDEF _debugLOG_}
-    DEBUG('FuckUP_SET','--->>> Sender'+addr2txt(form));
-    {$endIf}
-    //---
     if Assigned(_frm_)and(_frm_.OnDestroy<>@_frmMyCustom_onDESTROY_) then begin
         //--- нагибание от пользователя
         FuckUP_onSET;
         //--- теперь наше ОБЯЗАТЕЛЬНОЕ изменение
        _frm_onDESTROY_original_:=form.OnDestroy;
         form.OnDestroy:=@_frmMyCustom_onDESTROY_;
+        //---
+        {$ifDEF _debugLOG_}
+        DEBUG('FuckUP_SET','>>>--- Sender'+addr2txt(_frm_));
+        {$endIf}
     end;
-    //---
-    {$ifDEF _debugLOG_}
-    DEBUG('FuckUP_SET','<<<--- Sender'+addr2txt(form));
-    {$endIf}
 end;
 
 procedure tIn0k_lazIdeSRC_FuckUpForm._do_FuckUP_CLR_;
 begin
-    {$ifDEF _debugLOG_}
-    DEBUG('FuckUP_CLR','--->>> Sender'+addr2txt(form));
-    {$endIf}
-    //---
     if Assigned(_frm_)and(_frm_.OnDestroy=@_frmMyCustom_onDESTROY_) then begin
         //--- чистим наше ОБЯЗАТЕЛЬНОЕ изменение
        _frm_.OnDestroy:=_frm_onDESTROY_original_;
         //--- просим пользорвателя прибрать за собой
         FuckUP_onCLR;
+        //---
+        {$ifDEF _debugLOG_}
+        DEBUG('FuckUP_CLR','---<<< Sender'+addr2txt(_frm_));
+        {$endIf}
     end;
-    //---
-    {$ifDEF _debugLOG_}
-    DEBUG('FuckUP_CLR','<<<--- Sender'+addr2txt(form));
-    {$endIf}
 end;
 
 //------------------------------------------------------------------------------
@@ -143,6 +139,7 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+// собсивенно весь этот класс ради этих двух методов
 
 // Происходит НАГИБ формы.
 procedure tIn0k_lazIdeSRC_FuckUpForm.FuckUP_onSET;
@@ -234,7 +231,6 @@ begin
     if Assigned(result) then _fuckUpNode_CLR_(result);
 end;
 
-
 // найти узел в списке
 function tIn0k_lazIdeSRC_FuckUpFrms_LIST._nodes__fnd_(const Form:TCustomForm):tIn0k_lazIdeSRC_FuckUpForm;
 var i:integer;
@@ -281,13 +277,16 @@ function tIn0k_lazIdeSRC_FuckUpFrms_LIST.fuckUpForms_GET(const Form:TCustomForm;
 begin
     result:=_nodes__fnd_(Form);
     if not Assigned(result) then begin
-        result:=nodeTYPE.Create;//(Form);
+        result:=nodeTYPE.Create;
         result._FuckUP_SET_(Form);
         if not _nodes__ADD_(result) then begin
             result.FREE;
             result:=nil;
         end;
     end;
+    {$ifDEF _debugLOG_}
+    DEBUG('fuckUpForms_GET','<<<--- Form'+addr2txt(form)+'-<-:'+addr2str(result));
+    {$endIf}
 end;
 
 {$endregion}
