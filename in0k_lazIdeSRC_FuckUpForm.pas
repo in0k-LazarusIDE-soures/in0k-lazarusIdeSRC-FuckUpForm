@@ -2,13 +2,30 @@ unit in0k_lazIdeSRC_FuckUpForm;
 
 {todo: описание и документация}
 
+{$mode objfpc}{$H+}
 interface
+
+{%region --- Описание НАСТРОЕК уровня КОМПИЛЯЦИИ ----------------- /fold }
+
+//// ВНИМАНИЕ !!!
+//// настройки могут быть ПЕРЕОПРЕДЕЛЕНЫ ниже при подключении
+//// файла настроек "компанента-Расширения" (`in0k_lazExt_SETTINGs.inc`).
+
+//--- # DebugLOG_mode ----------------------------------------------------------
+// Режим логирования.
+//  В код включаются вызовы `DEBUG` с описанием текущих событий и состояний.
+//
+//{$define in0k_lazIdeSRC_FuckUpForm__DebugLOG_mode}
+//
+//------------------------------------------------------------------------------
+
+{%endregion}
 
 {$i in0k_lazExt_SETTINGs.inc} //< настройки компанента-Расширения.
 //< Можно смело убирать, так как будеть работать только в моей специальной
 //< "системе имен и папок" `in0k_LazExt_..`.
 
-uses {$ifDef in0k_lazIdeSRC_FuckUpForm_DebugLOG_mode}in0k_lazExt_DEBUG,{$endIf}
+uses {$ifDef in0k_lazIdeSRC_FuckUpForm__DebugLOG_mode}in0k_lazExt_DEBUG,{$endIf}
      Classes, Forms;
 
 type
@@ -59,7 +76,7 @@ type
 implementation
 
 {%region --- возня с ДЕБАГОМ -------------------------------------- /fold}
-{$if defined(in0k_lazIdeSRC_FuckUpForm_DebugLOG_mode) AND declared(in0k_lazIde_DEBUG)}
+{$if defined(in0k_lazIdeSRC_FuckUpForm__DebugLOG_mode) AND declared(in0k_lazIde_DEBUG)}
     // `in0k_lazIde_DEBUG` - это функция ИНДИКАТОР что используется
     //                       моя "система имен и папок"
     {$define _debugLOG_}     //< типа да ... можно делать ДЕБАГ отметки
@@ -145,14 +162,12 @@ end;
 procedure tIn0k_lazIdeSRC_FuckUpForm.FuckUP_onSET;
 begin
     // тут можно поучаствовать в этом безобразии
-    // ShowMessage('FuckUP_SET');
 end;
 
 // Форму разгибают в начально состояние.
 procedure tIn0k_lazIdeSRC_FuckUpForm.FuckUP_onCLR;
 begin
     // почистить следы безобразиЯ оставленные в `FuckUP_onSET`
-    // ShowMessage('FuckUP_CLR');
 end;
 
 {$endregion}
