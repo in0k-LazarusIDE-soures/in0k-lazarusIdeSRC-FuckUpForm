@@ -15,7 +15,7 @@ interface
 // Режим логирования.
 //  В код включаются вызовы `DEBUG` с описанием текущих событий и состояний.
 //
-//{$define in0k_lazIdeSRC_FuckUpForm__DebugLOG_mode}
+//{$define in0k_lazIdeSRC_FuckUpForm___DebugLOG}
 //
 //------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ interface
 //< Можно смело убирать, так как будеть работать только в моей специальной
 //< "системе имен и папок" `in0k_LazExt_..`.
 
-uses {$ifDef in0k_lazIdeSRC_FuckUpForm__DebugLOG_mode}in0k_lazExt_DEBUG,{$endIf}
+uses {$ifDef in0k_lazIdeSRC_FuckUpForm___DebugLOG}in0k_lazExt_DEBUG,{$endIf}
      Classes, Forms;
 
 type
@@ -76,7 +76,7 @@ type
 implementation
 
 {%region --- возня с ДЕБАГОМ -------------------------------------- /fold}
-{$if defined(in0k_lazIdeSRC_FuckUpForm__DebugLOG_mode) AND declared(in0k_lazIde_DEBUG)}
+{$if defined(in0k_lazIdeSRC_FuckUpForm___DebugLOG) AND declared(in0k_lazIde_DEBUG)}
     // `in0k_lazIde_DEBUG` - это функция ИНДИКАТОР что используется
     //                       моя "система имен и папок"
     {$define _debugLOG_}     //< типа да ... можно делать ДЕБАГ отметки
