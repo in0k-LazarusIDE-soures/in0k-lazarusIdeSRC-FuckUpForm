@@ -1,4 +1,4 @@
-unit in0k_lazIdeSRC_FuckUpForm;
+unit in0k_lazIdeSRC_FuckUpForm_01;
 
 {todo: описание и документация}
 
@@ -21,11 +21,11 @@ interface
 
 {%endregion}
 
-{$i in0k_lazExt_SETTINGs.inc} //< настройки компанента-Расширения.
+{$i in0k_lazIdeSRC_SETTINGs.inc} //< настройки компанента-Расширения.
 //< Можно смело убирать, так как будеть работать только в моей специальной
 //< "системе имен и папок" `in0k_LazExt_..`.
 
-uses {$ifDef in0k_lazIdeSRC_FuckUpForm___DebugLOG}in0k_lazExt_DEBUG,{$endIf}
+uses {$ifDef in0k_lazIdeSRC_FuckUpForm___DebugLOG}in0k_lazIdeSRC_DEBUG,{$endIf}
      Classes, Forms;
 
 type
