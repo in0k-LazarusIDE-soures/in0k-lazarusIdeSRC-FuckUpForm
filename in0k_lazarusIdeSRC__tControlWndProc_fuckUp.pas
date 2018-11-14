@@ -161,7 +161,7 @@ begin
             {$ifDEF _debugLOG_}
             DEBUG(_cTXT_msgTYPE_,'LM_DESTROY ----<<<');
             {$endIf}
-  	  	end
+        end
         else begin
             // блокируем СОБСТВЕННЫЙ "subEventing"
            _ctrl_reXXXXX_Window_LOCK_:=TRUE;
@@ -176,7 +176,7 @@ begin
            _ctrl_rePlace_WindowProc_(_ctrl_,_ctrl_original_WindowProc_,@_MY_WindowProc_);
             // разрешаем СОБСТВЕННЫЙ "subEventing"
            _ctrl_reXXXXX_Window_LOCK_:=FALSE;
-	  	  end;
+        end;
     end
     {$ifDEF _debugLOG_}
     else begin // вот тут по идее МЕГАфайл наметился
@@ -217,7 +217,7 @@ begin
         if Assigned(_ctrl_) then _ctrl_reStore_WindowProc_(_ctrl_);
        _ctrl_:=Control;
         if Assigned(_ctrl_) then _ctrl_rePlace_WindowProc_(_ctrl_);
-		end;
+    end;
 end;
 
 end.
