@@ -14,22 +14,22 @@ uses
 
 
 type
- tIn0k_lazIdeSRC__tControls_fuckUpLAIR=class;
+ tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE=class;
 
  tIn0k_lazIdeSRC__tControls_fuckUpNODE=class(tIn0k_lazIdeSRC__tControl_fuckUpWndProc)
   strict private //< подмена аля "СабКлассинг"
     procedure _MY_WindowProc_(var TheMessage:TLMessage); //< МОЯ подстава
-  private
-   _ownr_:tIn0k_lazIdeSRC__tControls_fuckUpLAIR;
+  protected
+   _ownr_:tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE;
    _next_:tIn0k_lazIdeSRC__tControls_fuckUpNODE;
   private
     function _fucUpControl_(const cntrl:TControl):boolean;
   public
-    constructor Create(const Owner:tIn0k_lazIdeSRC__tControls_fuckUpLAIR);
+    constructor Create(const Owner:tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE);
   end;
  tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE=class of tIn0k_lazIdeSRC__tControls_fuckUpNODE;
 
- tIn0k_lazIdeSRC__tControls_fuckUpLAIR=class
+ tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE=class
   protected
    _dfdr_:TCriticalSection;
   protected
@@ -37,12 +37,20 @@ type
     function  _fnd_(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
     procedure _add_(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
     procedure _cut_(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
+  protected
+    //function GetNODE(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
+    function _GetNODE_(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
   public
     constructor Create;
     destructor DESTROY; override;
+  end;
+
+ tIn0k_lazIdeSRC__tControls_fuckUpLAIR=class(tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE)
   public
     function GetNODE(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
   end;
+
+
 
 implementation
 {%region --- then KILLER ------------------------------------------------}
@@ -79,7 +87,7 @@ end;
 {%endregion}
 //==============================================================================
 
-constructor tIn0k_lazIdeSRC__tControls_fuckUpNODE.Create(const Owner:tIn0k_lazIdeSRC__tControls_fuckUpLAIR);
+constructor tIn0k_lazIdeSRC__tControls_fuckUpNODE.Create(const Owner:tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE);
 begin
     inherited Create;
    _ownr_:=Owner;
@@ -125,13 +133,13 @@ end;
 
 //==============================================================================
 
-constructor tIn0k_lazIdeSRC__tControls_fuckUpLAIR.Create;
+constructor tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE.Create;
 begin
    _dfdr_:=TCriticalSection.Create;
    _frst_:=NIL;
 end;
 
-destructor tIn0k_lazIdeSRC__tControls_fuckUpLAIR.DESTROY;
+destructor tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE.DESTROY;
 begin
     {$ifOpt D+}
     Assert(not Assigned(_frst_),LineEnding+self.ClassName+LineEnding+'MEGA FAIL! list fuckUped controls NOT clean!'+LineEnding);
@@ -142,21 +150,7 @@ end;
 
 //------------------------------------------------------------------------------
 
-function tIn0k_lazIdeSRC__tControls_fuckUpLAIR.GetNODE(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
-begin
-   _dfdr_.Acquire;
-    result:=_fnd_(Control,fuckUpTYPE);
-    if not Assigned(result) then begin
-        result:=fuckUpTYPE.Create(Self);
-        result._fucUpControl_(Control);
-       _add_(result);
-    end;
-   _dfdr_.Release;
-end;
-
-//------------------------------------------------------------------------------
-
-function tIn0k_lazIdeSRC__tControls_fuckUpLAIR._fnd_(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
+function tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE._fnd_(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
 begin {todo: может проверок натыкать?}
     result:=_frst_;
     while Assigned(result) do begin
@@ -165,13 +159,13 @@ begin {todo: может проверок натыкать?}
     end;
 end;
 
-procedure tIn0k_lazIdeSRC__tControls_fuckUpLAIR._add_(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
+procedure tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE._add_(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
 begin {todo: может проверок натыкать?}
     node._next_:=_frst_;
    _frst_:=node;
 end;
 
-procedure tIn0k_lazIdeSRC__tControls_fuckUpLAIR._cut_(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
+procedure tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE._cut_(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
 var tmp:tIn0k_lazIdeSRC__tControls_fuckUpNODE;
 begin {todo: может проверок натыкать?}
     if node=_frst_ then begin
@@ -186,9 +180,24 @@ end;
 
 //------------------------------------------------------------------------------
 
+function tIn0k_lazIdeSRC__tControls_fuckUpLAIR_CORE._GetNODE_(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
+begin
+   _dfdr_.Acquire;
+    result:=_fnd_(Control,fuckUpTYPE);
+    if not Assigned(result) then begin
+        result:=fuckUpTYPE.Create(Self);
+        result._fucUpControl_(Control);
+       _add_(result);
+    end;
+   _dfdr_.Release;
+end;
+
 //==============================================================================
 
-
+function tIn0k_lazIdeSRC__tControls_fuckUpLAIR.GetNODE(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
+begin
+    result:=_GetNODE_(Control,fuckUpTYPE);
+end;
 
 end.
 

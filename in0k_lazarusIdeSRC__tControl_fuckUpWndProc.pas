@@ -4,18 +4,20 @@ unit in0k_lazarusIdeSRC__tControl_fuckUpWndProc;
 
 interface
 
-uses
+{$include in0k_LazarusIdeSRC__Settings.inc}
+
+uses {$ifDef in0k_LazarusIdeEXT__DEBUG}in0k_lazarusIdeSRC__wndDEBUG,{$endIf}
   LMessages,
   Controls;
 
 type
 
  tIn0k_lazIdeSRC__tControl_fuckUpWndProc=class
-  strict private //< подмена аля "СабКлассинг"
-    procedure _MY_WindowProc_(var TheMessage:TLMessage); //< МОЯ подстава
   protected
    _ctrl_:TControl;                                      //< кого мы НАГНУЛИ
    _ctrl_original_WindowProc_:TWndMethod;                //< ОРИГИНАЛЬНЫЙ метод
+  strict private //< подмена аля "СабКлассинг"
+    procedure _MY_WindowProc_(var TheMessage:TLMessage); //< МОЯ подстава
   protected //< подмена аля "СабКлассинг"
     procedure _ctrl_rePlace_WindowProc_(const ctrl:TControl; out   original:TWndMethod; const myCustom:TWndMethod); {$ifOpt D-}inline;{$endIf}
     function  _ctrl_rePlace_WindowProc_(const ctrl:TControl; const myCustom:TWndMethod):boolean;                    {$ifOpt D-}inline;{$endIf}
@@ -30,10 +32,19 @@ type
     procedure fuckUP__onCLR; virtual; //< очистка "сабЕвентинга"
   public
     constructor Create;
-    destructor DESTROY;
+    destructor DESTROY; override;
   end;
 
 implementation
+{%region --- возня с ДЕБАГОМ -------------------------------------- /fold}
+{$if declared(in0k_lazarusIdeSRC_DEBUG)}
+    // `in0k_lazarusIdeSRC_DEBUG` - это функция ИНДИКАТОР что используется
+    //                              моя "система"
+    {$define _debugLOG_} //< и типа да ... можно делать ДЕБАГ отметки
+{$endIf}
+{%endregion}
+{$undef _debugLOG_} //< если надо ЛОКАЛЬНО "дебажить", то ЗАКОММЕНТИРОВАТЬ
+//------------------------------------------------------------------------------
 
 constructor tIn0k_lazIdeSRC__tControl_fuckUpWndProc.Create;
 begin
@@ -43,6 +54,10 @@ end;
 
 destructor tIn0k_lazIdeSRC__tControl_fuckUpWndProc.DESTROY;
 begin
+    {$ifOpt D+} // если что-то пошло НЕ так ... попробуем об этом сообщить
+    Assert(not _fuckUP_already_, LineEnding+self.ClassName+': MEGA FAIL!'+
+                                 LineEnding+'`Control` is still fuckUp!'+LineEnding);
+    {$endif}
     inherited;
 end;
 
@@ -97,16 +112,17 @@ end;
 
 //------------------------------------------------------------------------------
 
+// Событие: ПОДМЕНА событий
 procedure tIn0k_lazIdeSRC__tControl_fuckUpWndProc.fuckUP__onSET;
 begin
-
+    // в "потомках" класса тут можно подменить любые другие необходимые события
 end;
 
+// Событие: восстановление ПЕРВОНАЧАЛЬНОГО вида
 procedure tIn0k_lazIdeSRC__tControl_fuckUpWndProc.fuckUP__onCLR;
 begin
-
+    // в "потомках" класса тут НЕОБХОДИМО восстановить прежние обработчки!
 end;
-
 
 //------------------------------------------------------------------------------
 

@@ -2,3 +2,5 @@
 /backup/*
 */lib/*
 */backup/*
+*.lps
+*.exe
