@@ -60,7 +60,6 @@ const
 {$endIf}
 {%endregion}
 
-
 constructor tIn0k_lazarusIdeSRC__fuckUp_tControlWndProc.Create;
 begin
     inherited;

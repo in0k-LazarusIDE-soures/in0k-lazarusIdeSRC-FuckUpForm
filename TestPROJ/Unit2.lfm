@@ -1,0 +1,10 @@
+object Form2: TForm2
+  Left = 421
+  Height = 240
+  Top = 121
+  Width = 320
+  Caption = 'Form2'
+  OnClose = FormClose
+  LCLVersion = '2.0.0.2'
+  Visible = True
+end
