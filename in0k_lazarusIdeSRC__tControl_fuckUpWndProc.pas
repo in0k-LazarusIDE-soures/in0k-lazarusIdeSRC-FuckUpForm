@@ -43,7 +43,7 @@ implementation
     {$define _debugLOG_} //< и типа да ... можно делать ДЕБАГ отметки
 {$endIf}
 {%endregion}
-{$undef _debugLOG_} //< если надо ЛОКАЛЬНО "дебажить", то ЗАКОММЕНТИРОВАТЬ
+{.$undef _debugLOG_} //< если надо ЛОКАЛЬНО "дебажить", то ЗАКОММЕНТИРОВАТЬ
 //------------------------------------------------------------------------------
 
 constructor tIn0k_lazIdeSRC__tControl_fuckUpWndProc.Create;
@@ -87,13 +87,13 @@ begin
     if Assigned(_ctrl_) then begin //< мы с кем-то работаем?
         if (TheMessage.msg=LM_DESTROY) then begin //< УДАЛЯЕТСЯ
             {$ifDEF _debugLOG_}
-            DEBUG(_cTXT_msgTYPE_,'LM_DESTROY ---->>>');
+            DEBUG(self.ClassName,'LM_DESTROY ---->>>');
             {$endIf}
            _ctrl_reStore_WindowProc_(_ctrl_,@_MY_WindowProc_);
            _ctrl_.WindowProc(TheMessage);
            _ctrl_:=nil;
             {$ifDEF _debugLOG_}
-            DEBUG(_cTXT_msgTYPE_,'LM_DESTROY ----<<<');
+            DEBUG(self.ClassName,'LM_DESTROY ----<<<');
             {$endIf}
         end
         else begin
@@ -105,7 +105,7 @@ begin
     end
     {$ifDEF _debugLOG_}
     else begin // вот тут по идее МЕГАфайл наметился
-        DEBUG(_cTXT_msgTYPE_,'!!! WRONG_00 !!! MegaFAIL !!!!!!!!!!!!!!!!!');
+        DEBUG(self.ClassName,'!!! WRONG_00 !!! MegaFAIL !!!!!!!!!!!!!!!!!');
     end;
     {$endIf}
 end;
@@ -146,13 +146,13 @@ begin
         // собственное
        _ctrl_rePlace_WindowProc_(ctrl,_ctrl_original_WindowProc_,myCustom);
         {$ifDEF _debugLOG_}
-        DEBUG(_cTXT_rePlace_,_cTXT_obj_+addr2txt(ctrl)+_cTXT_space_+mthd2txt(@_ctrl_original_WindowProc_)+_cTXT_arrow_+mthd2txt(@ctrl.WindowProc));
+        DEBUG(self.ClassName,'rePlace_WindowProc^ obj'+addr2txt(ctrl)+' '+mthd2txt(@_ctrl_original_WindowProc_)+'->'+mthd2txt(@ctrl.WindowProc));
         {$endIf}
         result:=TRUE;
     end
     else begin
         {$ifDEF _debugLOG_}
-        DEBUG(_cTXT_rePlace_,_cTXT_SKIPped_+_cTXT_space_+_cTXT_obj_+addr2txt(ctrl)+mthd2txt(@ctrl.WindowProc));
+        DEBUG(self.ClassName,'rePlace_WindowProc SKIP'+' '+'obj'+addr2txt(ctrl)+mthd2txt(@ctrl.WindowProc));
         {$endIf}
     end
 end;
@@ -166,7 +166,7 @@ begin
     if Assigned(ctrl) and (ctrl.WindowProc=myCustom) then begin
         result:=TRUE;
         {$ifDEF _debugLOG_}
-        DEBUG(_cTXT_reStore_,_cTXT_obj_+addr2txt(ctrl)+_cTXT_space_+mthd2txt(@ctrl.WindowProc)+_cTXT_arrow_+mthd2txt(@_ctrl_original_WindowProc_));
+        DEBUG(self.ClassName,'reStore_WindowProc^ obj'+addr2txt(ctrl)+' '+mthd2txt(@ctrl.WindowProc)+'->'+mthd2txt(@_ctrl_original_WindowProc_));
         {$endIf}
         // собственное
         ctrl.WindowProc:=_ctrl_original_WindowProc_;
@@ -176,7 +176,8 @@ begin
     end
     else begin
         {$ifDEF _debugLOG_}
-        DEBUG(_cTXT_rePlace_,_cTXT_SKIPped_+_cTXT_space_+_cTXT_obj_+addr2txt(ctrl)+mthd2txt(@ctrl.WindowProc));
+        if Assigned(ctrl) then DEBUG(self.ClassName,'rePlace_WindowProc SKIP'+' '+'obj'+addr2txt(ctrl)+mthd2txt(@ctrl.WindowProc))
+                          else DEBUG(self.ClassName,'rePlace_WindowProc SKIP'+' '+'obj is NULL');
         {$endIf}
     end;
 end;

@@ -4,7 +4,9 @@ unit in0k_lazarusIdeSRC__tControls_fuckUpWndProc;
 
 interface
 
-uses
+{$include in0k_LazarusIdeSRC__Settings.inc}
+
+uses {$ifDef in0k_LazarusIdeEXT__DEBUG}in0k_lazarusIdeSRC__wndDEBUG,{$endIf}
   in0k_lazarusIdeSRC__tControl_fuckUpWndProc,
   //
   LMessages,
@@ -38,7 +40,6 @@ type
     procedure _add_(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
     procedure _cut_(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
   protected
-    //function GetNODE(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
     function _GetNODE_(const Control:TControl; const fuckUpTYPE:tIn0k_lazIdeSRC__tControls_fuckUpNODE_TYPE):tIn0k_lazIdeSRC__tControls_fuckUpNODE;
   public
     constructor Create;
@@ -53,6 +54,13 @@ type
 
 
 implementation
+{%region --- возня с ДЕБАГОМ -------------------------------------- /fold}
+{$if declared(in0k_lazarusIdeSRC_DEBUG)}
+    // `in0k_lazarusIdeSRC_DEBUG` - это функция ИНДИКАТОР что используется
+    //                              моя "система"
+    {$define _debugLOG_} //< и типа да ... можно делать ДЕБАГ отметки
+{$endIf}
+{%endregion}
 {%region --- then KILLER ------------------------------------------------}
 
 type
@@ -67,21 +75,23 @@ _tKILLER_=class(TThread)
 
 constructor _tKILLER_.Create(const node:tIn0k_lazIdeSRC__tControls_fuckUpNODE);
 begin
-    inherited Create(FALSE);
-   _node_:=node;
+    inherited Create(TRUE);
     FreeOnTerminate:=TRUE;
+   _node_:=node;
 end;
 
 //------------------------------------------------------------------------------
 
 procedure _tKILLER_.Execute;
 begin
-    // вырезаем из очереди
-   _node_._ownr_._dfdr_.Acquire;
-   _node_._ownr_._cut_(_node_);
-   _node_._ownr_._dfdr_.Release;
-    // УБИВАЕМ
-   _node_.FREE;
+    if Assigned(_node_) then begin
+        // вырезаем из очереди
+       _node_._ownr_._dfdr_.Acquire;
+       _node_._ownr_._cut_(_node_);
+       _node_._ownr_._dfdr_.Release;
+        // УБИВАЕМ
+       _node_.Free;
+    end
 end;
 
 {%endregion}
@@ -101,15 +111,15 @@ begin
     if Assigned(_ctrl_) then begin //< мы с кем-то работаем?
         if (TheMessage.msg=LM_DESTROY) then begin //< УДАЛЯЕТСЯ
             {$ifDEF _debugLOG_}
-            DEBUG(_cTXT_msgTYPE_,'LM_DESTROY ---->>>');
+            DEBUG(self.ClassName,'LM_DESTROY ---->>>');
             {$endIf}
            _ctrl_reStore_WindowProc_(_ctrl_,@_MY_WindowProc_);
            _ctrl_.WindowProc(TheMessage);
            _ctrl_:=nil;
             {$ifDEF _debugLOG_}
-            DEBUG(_cTXT_msgTYPE_,'LM_DESTROY ----<<<');
+            DEBUG(self.ClassName,'LM_DESTROY ----<<<');
             {$endIf}
-           _tKILLER_.Create(self);
+           _tKILLER_.Create(self).Start;
         end
         else begin
             // выполняем событие
@@ -120,7 +130,7 @@ begin
     end
     {$ifDEF _debugLOG_}
     else begin // вот тут по идее МЕГАфайл наметился
-        DEBUG(_cTXT_msgTYPE_,'!!! WRONG_00 !!! MegaFAIL !!!!!!!!!!!!!!!!!');
+        DEBUG(self.ClassName,'!!! WRONG_00 !!! MegaFAIL !!!!!!!!!!!!!!!!!');
     end;
     {$endIf}
 end;
@@ -188,6 +198,14 @@ begin
         result:=fuckUpTYPE.Create(Self);
         result._fucUpControl_(Control);
        _add_(result);
+        {$ifDef _debugLOG_}
+        DEBUG(self.ClassName ,'Control('+Control.ClassName+')'+addr2txt(Control)+' FuckUP was DONE');
+        {$endIf}
+    end
+    else begin
+        {$ifDef _debugLOG_}
+        DEBUG(self.ClassName ,'Control('+Control.ClassName+')'+addr2txt(Control)+' already FuckUP');
+        {$endIf}
     end;
    _dfdr_.Release;
 end;
