@@ -35,16 +35,15 @@ type
     destructor DESTROY; override;
   end;
 
-implementation
-{%region --- возня с ДЕБАГОМ -------------------------------------- /fold}
-{$if declared(in0k_lazarusIdeSRC_DEBUG)}
+implementation {%region --- возня с ДЕБАГОМ ----------------------- /fold}
+{$ifDef in0k_lazarusIdeSRC__tControl_fuckUpWndProc--DEBUG}
+  {$if declared(in0k_lazarusIdeSRC_DEBUG)}
     // `in0k_lazarusIdeSRC_DEBUG` - это функция ИНДИКАТОР что используется
     //                              моя "система"
     {$define _debugLOG_} //< и типа да ... можно делать ДЕБАГ отметки
+  {$endIf}
 {$endIf}
 {%endregion}
-{.$undef _debugLOG_} //< если надо ЛОКАЛЬНО "дебажить", то ЗАКОММЕНТИРОВАТЬ
-//------------------------------------------------------------------------------
 
 constructor tIn0k_lazIdeSRC__tControl_fuckUpWndProc.Create;
 begin
