@@ -95,7 +95,23 @@ unit in0k_lazarusIdeSRC__tControl_fuckUpWndProc;
 
 interface
 
-{$include in0k_LazarusIdeSRC__Settings.inc}
+{%region - Описание НАСТРОЕК уровня КОМПИЛЯЦИИ -------------------- /fold}
+////////                                                                 ///////
+////////   ВНИМАНИЕ !!!                                                  ///////
+////////   настройки могут/будут ПЕРЕОПРЕДЕЛЕНЫ ниже при подключении     ///////
+////////   файла настроек `in0k_LazarusIdeSRC__Settings.inc`.            ///////
+////////                                                                 ///////
+////////-----------------------------------------------------------------///////
+
+//--- # DebugLOG_mode ----------------------------------------------------------
+//  Режим логирования.
+//  В код включаются вызовы `DEBUG` с описанием текущих событий и состояний.
+//
+{$define in0k_lazarusIdeSRC__tControl_fuckUpWndProc--DEBUG}
+//
+//------------------------------------------------------------------------------
+{%endregion}
+{$include  in0k_LazarusIdeSRC__Settings.inc}
 
 uses {$ifDef in0k_LazarusIdeEXT__DEBUG}in0k_lazarusIdeSRC__wndDEBUG,{$endIf}
   LMessages,
