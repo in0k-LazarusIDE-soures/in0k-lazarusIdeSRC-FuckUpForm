@@ -109,22 +109,21 @@ uses {$ifDef in0k_LazarusIdeEXT__DEBUG}in0k_lazarusIdeSRC__wndDEBUG,{$endIf}
 type
   // БАЗОВЫЙ класс
  tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE=class
-  protected
+ private
    _ctrl_:TControl;                                      //< кого мы НАГНУЛИ
    _ctrl_original_WindowProc_:TWndMethod;                //< ОРИГИНАЛЬНЫЙ метод
-  strict private //< подмена аля "СабКлассинг"
     procedure _MY_WindowProc_(var TheMessage:TLMessage); //< МОЯ подстава
   private //< подмена аля "СабКлассинг"
-    function  _ctrl_rePlace_WindowProc_(const ctrl:TControl; const myCustom:TWndMethod):boolean; {$ifOpt D-}inline;{$endIf}
-    function  _ctrl_reStore_WindowProc_(const ctrl:TControl; const myCustom:TWndMethod):boolean; {$ifOpt D-}inline;{$endIf}
-    function  _ctrl_already_fuckUP_:boolean;                                                     {$ifOpt D-}inline;{$endIf}
-    function  _ctrl_fuckUP_(const ctrl:TControl):boolean;                                        {$ifOpt D-}inline;{$endIf}
+    function  _ctrl_events_rePlace_(const ctrl:TControl; const myCustom:TWndMethod):boolean; {$ifOpt D-}inline;{$endIf}
+    function  _ctrl_events_reStore_(const ctrl:TControl; const myCustom:TWndMethod):boolean; {$ifOpt D-}inline;{$endIf}
+    function  _ctrl_FuckUP_DO_     (const ctrl:TControl):boolean;                            {$ifOpt D-}inline;{$endIf}
+  protected      //
+    procedure fuckUP__rePlaceEVNTs(const {%H-}ctrl:TControl); virtual; //< дополнительный "сабЕвентинг"
+    procedure fuckUP__reStoreEVNTs(const {%H-}ctrl:TControl); virtual; //< очистка "сабЕвентинга"
   protected
+    property  fuckUP__Control:TControl read _ctrl_;
     procedure fuckUP__wndProc_BEFO(const {%H-}TheMessage:TLMessage); virtual;
     procedure fuckUP__wndProc_AFTE(const {%H-}TheMessage:TLMessage); virtual;
-  protected
-    procedure fuckUP__onSET; virtual; //< дополнительный "сабЕвентинг"
-    procedure fuckUP__onCLR; virtual; //< очистка "сабЕвентинга"
   public
     constructor Create;
     destructor DESTROY; override;
@@ -133,7 +132,7 @@ type
   // класс для ИСПОЛЬЗОВАНИЯ
  tIn0k_lazIdeSRC__tControl__fuckUpWndProc=class(tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE)
   public
-   function  FuckUP(const Control:TControl):boolean;
+   function FuckUP(const Control:TControl):boolean;
   end;
 
 {$endregion}
@@ -194,18 +193,10 @@ begin
    _ctrl_:=nil;
 end;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// объект находится в ПОДМЕНЕННОМ (нагнутом) состоянии
-function tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE._ctrl_already_fuckUP_:boolean;
-begin // ВСЕ должно быть НЕ NIL
-    result:= Assigned(_ctrl_) AND Assigned(_ctrl_original_WindowProc_);
-end;
-
 destructor tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE.DESTROY;
 begin
     {$ifOpt D+} // если что-то пошло НЕ так ... попробуем об этом сообщить
-    Assert(not _ctrl_already_fuckUP_, LineEnding+self.ClassName+': MEGA FAIL!'+LineEnding+'`Control` is still fuckUp!'+LineEnding);
+    Assert(Assigned(_ctrl_) or Assigned(_ctrl_original_WindowProc_), LineEnding+self.ClassName+': MEGA FAIL!'+LineEnding+'`Control` is still fuckUp!'+LineEnding);
     {$endif}
     inherited;
 end;
@@ -213,10 +204,18 @@ end;
 //------------------------------------------------------------------------------
 
 // Выполнить ПОДМЕНУ событий
-function tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE._ctrl_fuckUP_(const ctrl:TControl):boolean;
+function tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE._ctrl_FuckUP_DO_(const ctrl:TControl):boolean;
 begin
-    result:=_ctrl_rePlace_WindowProc_(ctrl,@_MY_WindowProc_);
-    if result then _ctrl_:=ctrl;
+    result:=_ctrl_events_rePlace_(ctrl,@_MY_WindowProc_);
+    if result then begin
+        // ЗАКРЕПИЛИ факт подмены
+       _ctrl_:=ctrl;
+    end
+    else begin
+        // ОТМЕНИЛИ факт подмены
+       _ctrl_original_WindowProc_:=nil;
+       _ctrl_:=nil;
+    end;
 end;
 
 //------------------------------------------------------------------------------
@@ -248,7 +247,7 @@ begin
             {$ifDEF _debugLOG_}
             DEBUG(self.ClassName+addr2txt(self),'LM_DESTROY ---->>> control '+_ctrl_.ClassName+addr2txt(self));
             {$endIf}
-           _ctrl_reStore_WindowProc_(_ctrl_,@_MY_WindowProc_);
+           _ctrl_events_reStore_(_ctrl_,@_MY_WindowProc_);
            _ctrl_.WindowProc(TheMessage);
            _ctrl_:=nil; //< теперь мы ПОЛНОСТЬЮ "отписались" от `_ctrl_`
             {$ifDEF _debugLOG_}
@@ -272,13 +271,13 @@ end;
 //------------------------------------------------------------------------------
 
 // Событие: ПОДМЕНА событий
-procedure tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE.fuckUP__onSET;
+procedure tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE.fuckUP__rePlaceEVNTs(const ctrl:TControl);
 begin
     // в "потомках" класса тут можно подменить любые другие необходимые события
 end;
 
 // Событие: восстановление ПЕРВОНАЧАЛЬНОГО вида
-procedure tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE.fuckUP__onCLR;
+procedure tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE.fuckUP__reStoreEVNTs(const ctrl:TControl);
 begin
     // в "потомках" класса тут НЕОБХОДИМО восстановить прежние обработчки!
 end;
@@ -286,12 +285,12 @@ end;
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // Заменяем оригинальную функцию `WindowProc` на собственную реализацию
-function tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE._ctrl_rePlace_WindowProc_(const ctrl:TControl; const myCustom:TWndMethod):boolean;
+function tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE._ctrl_events_rePlace_(const ctrl:TControl; const myCustom:TWndMethod):boolean;
 begin
     result:=FALSE;
-    if Assigned(ctrl) and (ctrl.WindowProc<>myCustom) then begin
+    if Assigned(ctrl) and (ctrl.WindowProc<>myCustom) then begin //< проверим что это ВОЗМОЖНО
         // дадим "развлечся" пользователю
-        fuckUP__onSET;
+        fuckUP__rePlaceEVNTs(ctrl);
         // наслаждаемся сами
        _ctrl_original_WindowProc_:=ctrl.WindowProc;
         ctrl.WindowProc:=myCustom;
@@ -310,15 +309,15 @@ begin
 end;
 
 // Восстанавливаем СТАРУЮ-оригинальную функцию `WindowProc`
-function tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE._ctrl_reStore_WindowProc_(const ctrl:TControl; const myCustom:TWndMethod):boolean;
+function tIn0k_lazIdeSRC__tControl__fuckUpWndProc_CORE._ctrl_events_reStore_(const ctrl:TControl; const myCustom:TWndMethod):boolean;
 begin
     result:=FALSE;
-    if Assigned(ctrl) and (ctrl.WindowProc=myCustom) then begin
+    if Assigned(ctrl) and (ctrl.WindowProc=myCustom) then begin //< проверим что это ВОЗМОЖНО
         // восстанавливаем собственное изменение
         ctrl.WindowProc:=_ctrl_original_WindowProc_;
        _ctrl_original_WindowProc_:=NIL;
         // дадим "зачистить следы" пользователю
-        fuckUP__onCLR;
+        fuckUP__reStoreEVNTs(ctrl);
         {$ifDEF _debugLOG_}
         DEBUG(self.ClassName+addr2txt(self),'reStore_WindowProc: ctrl'+addr2txt(ctrl)+' '+mthd2txt(@myCustom)+'->'+mthd2txt(@ctrl.WindowProc));
         {$endIf}
@@ -339,7 +338,7 @@ end;
 // Выполнить ПОДМЕНУ событий
 function tIn0k_lazIdeSRC__tControl__fuckUpWndProc.FuckUP(const Control:TControl):boolean;
 begin
-    result:=_ctrl_fuckUP_(Control);
+    result:=_ctrl_FuckUP_DO_(Control);
 end;
 
 {$endregion}
@@ -609,7 +608,7 @@ begin
             {$ifDEF _debugLOG_}
             DEBUG(self.ClassName+addr2txt(self),'LM_DESTROY ---->>> control '+_ctrl_.ClassName+addr2txt(self));
             {$endIf}
-           _ctrl_reStore_WindowProc_(_ctrl_,@_MY_WindowProc_);
+           _ctrl_events_reStore_(_ctrl_,@_MY_WindowProc_);
            _ctrl_.WindowProc(TheMessage);
            _ctrl_:=nil; //< теперь мы ПОЛНОСТЬЮ "отписались" от `_ctrl_`
             {$ifDEF _debugLOG_}
@@ -634,7 +633,7 @@ end;
 
 function tIn0k_lazIdeSRC__tControls_fuckUpWndProcNODE._ctrl_fuckUP_(const ctrl:TControl):boolean;
 begin
-    result:=_ctrl_rePlace_WindowProc_(ctrl,@_MY_WindowProc_);
+    result:=_ctrl_events_rePlace_(ctrl,@_MY_WindowProc_);
     if result then _ctrl_:=ctrl;
 end;
 
